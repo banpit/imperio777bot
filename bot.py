@@ -20,10 +20,10 @@ MENSAGENS = [
         "nome": "m1",
         "intervalo": 10 * 60,    # mensagem 1: a cada 10 minutos
         "offset": 0,             # nos minutos :00, :10, :20...
-        "imagem": "banner.jpg",  # opcional: sem o arquivo, envia só texto
+        "imagem": "7cwin.jpg",  # opcional: sem o arquivo, envia só texto
         "texto": (
             "🇱 🇦 🇳 🇨 🇦 🇲 🇪 🇳 🇹 🇴\n"
-            "࿐ 🎰 REDE POP 🎰 ࿐\n\n"
+            "࿐ 🎰 GRUPO WIN 🎰 ࿐\n\n"
             "🎰 LINK DA PLATAFORMA:\n"
             f"↪️ {LINK_7C}\n\n"
             "✅ DEPÓSITO MIN - 5$\n"
