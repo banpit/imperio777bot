@@ -47,8 +47,8 @@ MENSAGENS = [
             "🎰 7CWIN:\n"
             f"{LINK_7C}\n"
             "🎰 POPJUN:\n"
-            f"{LINK_POPJUN}\n"
-            "QUALQUER VALOR DE DEPÓSITO E VÁLIDO PARA PARTICIPAR! ✅\n"
+            f"{LINK_POPJUN}\n\n"
+            "QUALQUER VALOR DE DEPÓSITO E VÁLIDO PARA PARTICIPAR! ✅\n\n"
             "❗ Observação: Fazendo conta nas 2 plataformas poderá escolher 2 números para o sorteio!\n\n"
             "🔞 Proibido para menores de 18 anos. Jogue com responsabilidade."
         ),
