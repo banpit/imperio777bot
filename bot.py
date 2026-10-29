@@ -12,7 +12,7 @@ IMAGEM = "7cwin.jpg"   # opcional: se o arquivo não existir, envia só texto
 
 TEXTO = (
     "🇱 🇦 🇳 🇨 🇦 🇲 🇪 🇳 🇹 🇴\n"
-    "࿐ 🎰 REDE POP 🎰 ࿐\n\n"
+    "࿐ 🎰 GRUPO WIN 🎰 ࿐\n\n"
     "🎰 LINK DA PLATAFORMA:\n"
     "↪️ https://7c577.com/?pid=1515197579&fromPage=AGENCY_CENTER\n\n"
     "✅ DEPÓSITO MIN - 5$\n"
