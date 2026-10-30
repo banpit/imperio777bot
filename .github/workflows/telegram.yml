@@ -2,8 +2,14 @@ name: Enviar mensagem no Telegram
 
 on:
   schedule:
-    - cron: "0 */5 * * *"
+    - cron: "0 13 * * *"   # 10h Brasília
+    - cron: "0 18 * * *"   # 15h Brasília
+    - cron: "0 23 * * *"   # 20h Brasília
   workflow_dispatch:
+    inputs:
+      continuo:
+        description: "Rodar em loop (true) ou enviar só 1 vez de teste (false)"
+        default: "false"
 
 permissions:
   contents: write
@@ -15,7 +21,7 @@ concurrency:
 jobs:
   enviar:
     runs-on: ubuntu-latest
-    timeout-minutes: 355
+    timeout-minutes: 340
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -26,11 +32,12 @@ jobs:
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-      - name: Salvar ID da última mensagem
+          MODO_TESTE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.continuo != 'true' }}
+      - name: Salvar estado
         if: always()
         run: |
           git config user.name "bot"
           git config user.email "bot@users.noreply.github.com"
-          git add ultimo_id.txt
-          git commit -m "atualiza id" || exit 0
+          git add estado.json || true
+          git commit -m "atualiza estado" || exit 0
           git push
