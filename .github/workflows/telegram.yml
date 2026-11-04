@@ -1,15 +1,20 @@
-name: Enviar mensagem no Telegram
+name: Enviar mensagens no Telegram
 
 on:
   schedule:
-    - cron: "0 13 * * *"   # 10h Brasília
-    - cron: "0 18 * * *"   # 15h Brasília
-    - cron: "0 23 * * *"   # 20h Brasília
+    # A cada 2 horas, nas horas pares de Brasília (UTC-3):
+    # 22h 0h 2h 4h 6h 8h 10h 12h 14h 16h 18h 20h
+    # (a pausa das 3h às 6h é controlada no config.py)
+    - cron: "0 1,3,5,7,9,11,13,15,17,19,21,23 * * *"
   workflow_dispatch:
     inputs:
-      continuo:
-        description: "Rodar em loop (true) ou enviar só 1 vez de teste (false)"
-        default: "false"
+      modo:
+        description: "proxima = envia a próxima da fila agora | todas = envia as 3 mensagens agora (teste)"
+        type: choice
+        options:
+          - proxima
+          - todas
+        default: proxima
 
 permissions:
   contents: write
@@ -21,7 +26,7 @@ concurrency:
 jobs:
   enviar:
     runs-on: ubuntu-latest
-    timeout-minutes: 340
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -32,7 +37,7 @@ jobs:
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          MODO_TESTE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.continuo != 'true' }}
+          MODO: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.modo || 'agendado' }}
       - name: Salvar estado
         if: always()
         run: |
