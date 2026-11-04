@@ -1,183 +1,170 @@
-import os
 import json
-import time
+import os
+import sys
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import requests
 
+import config
+
 TOKEN = os.environ["TELEGRAM_TOKEN"]
 CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
+# agendado = execução automática | proxima = envia a próxima da fila agora | todas = envia as 3 agora (teste)
+MODO = os.environ.get("MODO", "agendado")
+
 API = f"https://api.telegram.org/bot{TOKEN}"
-
-# ================== EDITE AQUI ==================
-LINK_7C = "https://7c577.com/?pid=1515197579&fromPage=AGENCY_CENTER"
-LINK_POPJUN = "https://22popjun.com/?a=70Oa0m&pkgCode=popjun-011&from=1001"
-LINK_ID = "https://t.me/imperio777ofc"
-
-MENSAGENS = [
-    {
-        "nome": "m1",
-        "intervalo": 10 * 60,    # mensagem 1: a cada 10 minutos
-        "offset": 0,             # nos minutos :00, :10, :20...
-        "imagem": "7cwin.jpg",  # opcional: sem o arquivo, envia só texto
-        "texto": (
-            "🇱 🇦 🇳 🇨 🇦 🇲 🇪 🇳 🇹 🇴\n"
-            "࿐ 🎰 GRUPO WIN 🎰 ࿐\n\n"
-            "🎰 LINK DA PLATAFORMA:\n"
-            f"↪️ {LINK_7C}\n\n"
-            "✅ DEPÓSITO MIN - 5$\n"
-            "✅ SAQUE MIN - 10$\n"
-            "✅ SEM TAXA DE SAQUE\n"
-            "✅ SEM BARRINHA/ROLLOVER\n"
-            "🚨 Não crie mais de uma conta na plataforma!\n\n"
-            "🔞 Proibido para menores de 18 anos. Jogue com responsabilidade."
-        ),
-        "botoes": [[{"text": "JOGAR AGORA!", "url": LINK_7C}]],
-    },
-    {
-        "nome": "m2",
-        "intervalo": 15 * 60,    # mensagem 2: a cada 15 minutos
-        "offset": 5 * 60,        # nos minutos :05, :20, :35, :50
-        "imagem": "imperio777sorteio.jpg",
-        "texto": (
-            "SORTEIO DE 300$ NO PIX 🍀\n"
-            "2 PIX DE 150$ (2 GANHADORES) 📌\n\n"
-            "PLATAFORMAS VALIDAS PARA PARTICIPAR DO SORTEIO ⤵\n\n"
-            "🎰 7CWIN:\n"
-            f"{LINK_7C}\n"
-            "🎰 POPJUN:\n"
-            f"{LINK_POPJUN}\n\n"
-            "QUALQUER VALOR DE DEPÓSITO E VÁLIDO PARA PARTICIPAR! ✅\n\n"
-            "❗ Observação: Fazendo conta nas 2 plataformas poderá escolher 2 números para o sorteio!\n\n"
-            "🔞 Proibido para menores de 18 anos. Jogue com responsabilidade."
-        ),
-        "botoes": [
-            [{"text": "🎰 JOGAR NA 7CWIN", "url": LINK_7C}],
-            [{"text": "🎰 JOGAR NA POPJUN", "url": LINK_POPJUN}],
-            [{"text": "ENVIAR 🆔 PARA O SORTEIO", "url": LINK_ID, "style": "primary"}],
-        ],
-    },
-]
-
-HORA_INICIO = 10                # começa às 10h (Brasília)
-HORA_FIM = 23                   # para às 23h (Brasília)
-DURACAO = 4 * 3600 + 55 * 60    # cada execução dura ~4h55
-TOLERANCIA = 5 * 60             # se atrasar mais que isso, espera o próximo horário
-# ================================================
-
 ARQ_ESTADO = "estado.json"
-# Execução manual simples = envia as 2 mensagens uma vez e encerra (teste)
-MODO_TESTE = os.environ.get("MODO_TESTE", "false") == "true"
+FUSO = ZoneInfo("America/Sao_Paulo")
+LIMITE_LEGENDA = 1024
 
 
-def dentro_do_horario():
-    hora = datetime.now(ZoneInfo("America/Sao_Paulo")).hour
-    return HORA_INICIO <= hora < HORA_FIM
-
-
+# ---------------------------------------------------------------- estado
 def ler_estado():
     try:
         with open(ARQ_ESTADO) as f:
-            return json.load(f)
+            estado = json.load(f)
     except Exception:
-        return {}
+        estado = {}
+    estado.setdefault("msgs", {})   # nome da mensagem -> lista de IDs enviados por último
+    estado.setdefault("idx", 0)     # próxima mensagem da fila
+    return estado
 
 
 def salvar_estado(estado):
     with open(ARQ_ESTADO, "w") as f:
-        json.dump(estado, f)
+        json.dump(estado, f, indent=2)
+
+
+# ---------------------------------------------------------------- telegram
+def montar_texto(msg):
+    texto = msg["texto"]
+    if config.RODAPE_ATIVO and config.RODAPE:
+        texto += "\n\n" + config.RODAPE
+    return texto
 
 
 def sem_estilo(botoes):
     return [[{k: v for k, v in b.items() if k != "style"} for b in linha] for linha in botoes]
 
 
-def _post(msg, botoes):
-    markup = json.dumps({"inline_keyboard": botoes})
-    imagem = msg.get("imagem")
-    if imagem and os.path.exists(imagem):
-        with open(imagem, "rb") as foto:
-            return requests.post(
-                f"{API}/sendPhoto",
-                data={"chat_id": CHAT_ID, "caption": msg["texto"], "reply_markup": markup},
-                files={"photo": foto},
-                timeout=60,
-            )
-    return requests.post(
-        f"{API}/sendMessage",
-        data={
-            "chat_id": CHAT_ID,
-            "text": msg["texto"],
-            "reply_markup": markup,
-            "disable_web_page_preview": True,
-        },
-        timeout=30,
-    )
+def tem_estilo(botoes):
+    return any("style" in b for linha in botoes for b in linha)
+
+
+def chamar(metodo, dados, arquivo=None):
+    url = f"{API}/{metodo}"
+    if arquivo:
+        with open(arquivo, "rb") as f:
+            return requests.post(url, data=dados, files={"photo": f}, timeout=60)
+    return requests.post(url, data=dados, timeout=30)
+
+
+def enviar_um(metodo, dados, botoes=None, arquivo=None):
+    """Envia uma mensagem. Se o Telegram recusar a cor dos botões, tenta sem a cor."""
+    if botoes:
+        dados["reply_markup"] = json.dumps({"inline_keyboard": botoes})
+    r = chamar(metodo, dados, arquivo)
+    if r.status_code == 400 and botoes and tem_estilo(botoes):
+        print("Aviso: Telegram recusou a cor dos botões, reenviando sem cor.")
+        dados["reply_markup"] = json.dumps({"inline_keyboard": sem_estilo(botoes)})
+        r = chamar(metodo, dados, arquivo)
+    if not r.ok:
+        raise RuntimeError(f"Telegram respondeu {r.status_code}: {r.text}")
+    return r.json()["result"]["message_id"]
 
 
 def enviar(msg):
-    r = _post(msg, msg["botoes"])
-    if r.status_code == 400:
-        # fallback: tenta de novo sem a cor dos botões
-        r = _post(msg, sem_estilo(msg["botoes"]))
-    r.raise_for_status()
-    return r.json()["result"]["message_id"]
+    """Envia a mensagem e devolve a lista de IDs criados."""
+    texto = montar_texto(msg)
+    botoes = msg.get("botoes")
+    imagem = msg.get("imagem")
+    tem_imagem = bool(imagem) and os.path.exists(imagem)
+    if imagem and not tem_imagem:
+        print(f"Aviso: imagem '{imagem}' não encontrada no repositório. Enviando só texto.")
+
+    if tem_imagem and len(texto) <= LIMITE_LEGENDA:
+        return [enviar_um("sendPhoto", {"chat_id": CHAT_ID, "caption": texto}, botoes, imagem)]
+
+    if tem_imagem:
+        # texto maior que o limite da legenda: foto sozinha + texto com os botões
+        print("Aviso: texto maior que 1024 caracteres, enviando foto e texto separados.")
+        id_foto = enviar_um("sendPhoto", {"chat_id": CHAT_ID}, None, imagem)
+        id_texto = enviar_um(
+            "sendMessage",
+            {"chat_id": CHAT_ID, "text": texto, "disable_web_page_preview": True},
+            botoes,
+        )
+        return [id_foto, id_texto]
+
+    return [enviar_um(
+        "sendMessage",
+        {"chat_id": CHAT_ID, "text": texto, "disable_web_page_preview": True},
+        botoes,
+    )]
 
 
 def apagar(msg_id):
     try:
-        requests.post(
+        r = requests.post(
             f"{API}/deleteMessage",
             data={"chat_id": CHAT_ID, "message_id": msg_id},
             timeout=30,
         )
+        if r.ok:
+            print(f"Apagada a mensagem {msg_id}")
+        else:
+            print(f"Não consegui apagar {msg_id}: {r.text}")
     except Exception as e:
-        print("Não consegui apagar:", e)
+        print(f"Não consegui apagar {msg_id}: {e}")
 
 
-def processar(msg, estado, agora):
+# ---------------------------------------------------------------- rotação
+def substituir(i, estado):
+    """Envia a mensagem i e, só depois, apaga a versão anterior DELA (e de mais nenhuma)."""
+    msg = config.MENSAGENS[i]
     nome = msg["nome"]
-    slot = int((agora - msg["offset"]) // msg["intervalo"])
-    inicio_slot = slot * msg["intervalo"] + msg["offset"]
-
-    if not MODO_TESTE:
-        if estado.get("slot_" + nome) == slot:
-            return  # já enviada neste horário
-        if agora - inicio_slot > TOLERANCIA:
-            return  # perdeu esse horário, espera o próximo
-
-    try:
-        novo = enviar(msg)
-        anterior = estado.get("id_" + nome)
-        if anterior:
-            apagar(anterior)
-        estado["id_" + nome] = novo
-        estado["slot_" + nome] = slot
-        salvar_estado(estado)
-        print(f"{nome}: enviada {novo}, apagada {anterior}")
-    except Exception as e:
-        print(f"{nome}: erro no envio:", e)
-        estado["slot_" + nome] = slot  # evita repetir sem parar no mesmo horário
+    novos = enviar(msg)
+    antigos = estado["msgs"].get(nome, [])
+    estado["msgs"][nome] = novos
+    salvar_estado(estado)  # salva já, para não perder o ID se algo falhar depois
+    print(f"{nome}: enviada {novos}")
+    for antigo in antigos:
+        apagar(antigo)
 
 
-estado = ler_estado()
-inicio = time.time()
+def main():
+    nomes = [m["nome"] for m in config.MENSAGENS]
+    if len(set(nomes)) != len(nomes):
+        sys.exit("Erro: há dois 'nome' repetidos no config.py")
 
-while True:
-    if not MODO_TESTE:
-        if not dentro_do_horario():
-            print("Fora do horário de envio. Encerrando.")
-            break
-        if time.time() - inicio >= DURACAO:
-            print("Fim desta execução.")
-            break
+    estado = ler_estado()
+    total = len(config.MENSAGENS)
+    agora = datetime.now(FUSO)
 
-    agora = time.time()
-    for m in MENSAGENS:
-        processar(m, estado, agora)
-        time.sleep(1)
+    if MODO == "todas":
+        for i in range(total):
+            substituir(i, estado)
+        return
 
-    if MODO_TESTE:
-        break
-    time.sleep(15)
+    slot = None
+    if MODO == "agendado":
+        hora_agendada = (agora.hour // 2) * 2  # os envios saem nas horas pares
+        slot = agora.strftime("%Y-%m-%d") + f"T{hora_agendada:02d}"
+        if config.PAUSA_INICIO <= hora_agendada < config.PAUSA_FIM:
+            print(f"Envio das {hora_agendada}h pulado (pausa {config.PAUSA_INICIO}h-{config.PAUSA_FIM}h).")
+            return
+        if estado.get("ultimo_slot") == slot:
+            print(f"O envio das {hora_agendada}h já foi feito hoje. Nada a fazer.")
+            return
+
+    i = estado["idx"] % total
+    substituir(i, estado)
+    estado["idx"] = (i + 1) % total
+    if slot:
+        estado["ultimo_slot"] = slot
+    salvar_estado(estado)
+
+
+if __name__ == "__main__":
+    main()
