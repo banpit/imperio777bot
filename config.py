@@ -49,7 +49,7 @@ MENSAGENS = [
             [{"text": "JOGAR NA 7JWIN", "url": LINK_7J}],
             [{"text": "JOGAR NA 7CWIN", "url": LINK_7C}],
             [{"text": "JOGAR NA POPJUN", "url": LINK_POPJUN}],
-            [{"text": "🟡 ENVIAR 🆔 PARA SORTEIO", "url": LINK_ID, "style": "primary"}],
+            [{"text": "ENVIAR 🆔 PARA SORTEIO", "url": LINK_ID, "style": "primary"}],
         ],
     },
     {
