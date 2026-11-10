@@ -1,5 +1,7 @@
+import html
 import json
 import os
+import re
 import sys
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -44,6 +46,17 @@ def montar_texto(msg):
     return texto
 
 
+def formatar(texto):
+    """Escapa o texto para HTML e transforma **trecho** em negrito (<b>trecho</b>)."""
+    seguro = html.escape(texto, quote=False)
+    return re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", seguro, flags=re.S)
+
+
+def sem_negrito(texto):
+    """Versão sem formatação (usada se o Telegram recusar o HTML)."""
+    return texto.replace("**", "")
+
+
 def sem_estilo(botoes):
     return [[{k: v for k, v in b.items() if k != "style"} for b in linha] for linha in botoes]
 
@@ -65,6 +78,13 @@ def enviar_um(metodo, dados, botoes=None, arquivo=None):
     if botoes:
         dados["reply_markup"] = json.dumps({"inline_keyboard": botoes})
     r = chamar(metodo, dados, arquivo)
+    if r.status_code == 400 and "parse entities" in r.text and dados.get("parse_mode"):
+        print("Aviso: Telegram recusou o negrito, reenviando sem formatação.")
+        dados.pop("parse_mode")
+        for campo in ("caption", "text"):
+            if campo in dados:
+                dados[campo] = html.unescape(re.sub(r"</?b>", "", dados[campo]))
+        r = chamar(metodo, dados, arquivo)
     if r.status_code == 400 and botoes and tem_estilo(botoes):
         print("Aviso: Telegram recusou a cor dos botões, reenviando sem cor.")
         dados["reply_markup"] = json.dumps({"inline_keyboard": sem_estilo(botoes)})
@@ -76,15 +96,22 @@ def enviar_um(metodo, dados, botoes=None, arquivo=None):
 
 def enviar(msg):
     """Envia a mensagem e devolve a lista de IDs criados."""
-    texto = montar_texto(msg)
+    bruto = montar_texto(msg)
+    texto = formatar(bruto)
+    limite_ok = len(sem_negrito(bruto)) <= LIMITE_LEGENDA  # o limite conta só o texto visível
     botoes = msg.get("botoes")
     imagem = msg.get("imagem")
     tem_imagem = bool(imagem) and os.path.exists(imagem)
     if imagem and not tem_imagem:
         print(f"Aviso: imagem '{imagem}' não encontrada no repositório. Enviando só texto.")
 
-    if tem_imagem and len(texto) <= LIMITE_LEGENDA:
-        return [enviar_um("sendPhoto", {"chat_id": CHAT_ID, "caption": texto}, botoes, imagem)]
+    if tem_imagem and limite_ok:
+        return [enviar_um(
+            "sendPhoto",
+            {"chat_id": CHAT_ID, "caption": texto, "parse_mode": "HTML"},
+            botoes,
+            imagem,
+        )]
 
     if tem_imagem:
         # texto maior que o limite da legenda: foto sozinha + texto com os botões
@@ -92,14 +119,14 @@ def enviar(msg):
         id_foto = enviar_um("sendPhoto", {"chat_id": CHAT_ID}, None, imagem)
         id_texto = enviar_um(
             "sendMessage",
-            {"chat_id": CHAT_ID, "text": texto, "disable_web_page_preview": True},
+            {"chat_id": CHAT_ID, "text": texto, "parse_mode": "HTML", "disable_web_page_preview": True},
             botoes,
         )
         return [id_foto, id_texto]
 
     return [enviar_um(
         "sendMessage",
-        {"chat_id": CHAT_ID, "text": texto, "disable_web_page_preview": True},
+        {"chat_id": CHAT_ID, "text": texto, "parse_mode": "HTML", "disable_web_page_preview": True},
         botoes,
     )]
 
