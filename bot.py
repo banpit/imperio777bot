@@ -47,14 +47,18 @@ def montar_texto(msg):
 
 
 def formatar(texto):
-    """Escapa o texto para HTML e transforma **trecho** em negrito (<b>trecho</b>)."""
+    """Escapa o texto para HTML e transforma *trecho* ou **trecho** em negrito (<b>trecho</b>)."""
     seguro = html.escape(texto, quote=False)
-    return re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", seguro, flags=re.S)
+    # dois asteriscos (pode ocupar várias linhas)
+    seguro = re.sub(r"\*\*(?=\S)(.+?)(?<=\S)\*\*", r"<b>\1</b>", seguro, flags=re.S)
+    # um asterisco (só dentro da mesma linha)
+    seguro = re.sub(r"\*(?=\S)([^*\n]+?)(?<=\S)\*", r"<b>\1</b>", seguro)
+    return seguro
 
 
-def sem_negrito(texto):
-    """Versão sem formatação (usada se o Telegram recusar o HTML)."""
-    return texto.replace("**", "")
+def texto_visivel(formatado):
+    """Texto como aparece no Telegram (sem as marcações), para contar o limite da legenda."""
+    return html.unescape(re.sub(r"</?b>", "", formatado))
 
 
 def sem_estilo(botoes):
@@ -98,7 +102,7 @@ def enviar(msg):
     """Envia a mensagem e devolve a lista de IDs criados."""
     bruto = montar_texto(msg)
     texto = formatar(bruto)
-    limite_ok = len(sem_negrito(bruto)) <= LIMITE_LEGENDA  # o limite conta só o texto visível
+    limite_ok = len(texto_visivel(texto)) <= LIMITE_LEGENDA  # o limite conta só o texto visível
     botoes = msg.get("botoes")
     imagem = msg.get("imagem")
     tem_imagem = bool(imagem) and os.path.exists(imagem)
