@@ -12,7 +12,7 @@ import config
 
 TOKEN = os.environ["TELEGRAM_TOKEN"]
 CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
-# agendado = execução automática | proxima = envia a próxima da fila agora | todas = envia as 3 agora (teste)
+# agendado = execução automática | proxima = envia a próxima da fila agora | todas = envia todas agora (teste)
 MODO = os.environ.get("MODO", "agendado")
 
 API = f"https://api.telegram.org/bot{TOKEN}"
