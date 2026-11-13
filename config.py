@@ -11,7 +11,7 @@
 # Sorteio (mensagem 1)
 LINK_OJ_789 = "https://ojwin789.com/?id=736514927"
 LINK_POPGLD_33 = "https://33popgld.com?a=42cOsF&pkgCode=popgld-011&from=1001"
-LINK_754_WWW = "https://www.754win.co/?id=384126857"
+LINK_754_WWW = "https://lfcoqueiro.com/?id=405095043"
 LINK_ID = "https://t.me/imperio777ofc"
 
 # OJWIN (mensagem 2)
@@ -23,8 +23,8 @@ LINK_POP = "https://www.popgld.com/?a=42cOsF&pkgCode=popgld-011&from=1001"
 LINK_POP_ALT = "https://33popgld.com/?a=42cOsF&pkgCode=popgld-011&from=1001"
 
 # 754WIN (mensagem 4)
-LINK_754 = "https://754win.co/?id=384126857"
-LINK_754_ALT = "https://dalip6ix3ow6i.cloudfront.net/?id=384126857"
+LINK_754 = "https://lfcoqueiro.com/?id=405095043"
+LINK_754_ALT = "https://www.lf-coqueiro.com/?id=405095043"
 
 # 7JWIN (mensagem 5)
 LINK_7J = "https://7jwin.vip/?pid=3791782603&fromPage=AGENCY_CENTER"
@@ -121,10 +121,10 @@ MENSAGENS = [
     # ---------------------------------------------------------------- 4 (nova)
     {
         "nome": "m4",
-        "imagem": "754win.jpg",
+        "imagem": "lfcoqueiro.jpg",
         "texto": (
             "🇱 🇦 🇳 🇨 🇦 🇲 🇪 🇳 🇹 🇴\n"
-            "࿐ 🎰 777CLUB 🎰 ࿐\n\n"
+            "࿐ 🎰 GRUPO LF 🎰 ࿐\n\n"
             "🎰 *LINK DA PLATAFORMA:*\n"
             f"{LINK_754}\n\n"
             "🔗 *LINK ALTERNATIVO:*\n"
@@ -136,7 +136,7 @@ MENSAGENS = [
             "🚨 *Não crie mais de uma conta na plataforma!*"
         ),
         "botoes": [
-            [{"text": "🎰 JOGAR NA 754WIN", "url": LINK_754}],
+            [{"text": "🎰 JOGAR NA LF-COQUEIRO", "url": LINK_754}],
             [{"text": "🔗 LINK ALTERNATIVO", "url": LINK_754_ALT}],
         ],
     },
