@@ -70,7 +70,7 @@ MENSAGENS = [
         "botoes": [
             [{"text": "🎰 JOGAR NA OJWIN", "url": LINK_OJ_789}],
             [{"text": "🎰 JOGAR NA POPGLD", "url": LINK_POPGLD_33}],
-            [{"text": "🎰 JOGAR NA 754WIN", "url": LINK_754_WWW}],
+            [{"text": "🎰 JOGAR NA LF-COQUEIRO", "url": LINK_754_WWW}],
             [{"text": "ENVIAR 🆔 PARA PARTICIPAR", "url": LINK_ID, "style": "primary"}],
         ],
     },
