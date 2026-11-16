@@ -62,7 +62,7 @@ MENSAGENS = [
             f"{LINK_OJ_789}\n\n"
             "🎰 *POPGLD:*\n"
             f"{LINK_POPGLD_33}\n\n"
-            "🎰 *754WIN:*\n"
+            "🎰 *LF-COQUEIRO:*\n"
             f"{LINK_754_WWW}\n\n"
             "❗ Obs. Fazendo conta nas 3 plataformas e depositando, pode escolher 3 números.\n\n"
             "📆 *Data do sorteio: (29/11)*"
