@@ -11,7 +11,7 @@
 # Sorteio (mensagem 1)
 LINK_OJ_789 = "https://ojwin789.com/?id=736514927"
 LINK_POPGLD_33 = "https://33popgld.com?a=42cOsF&pkgCode=popgld-011&from=1001"
-LINK_754_WWW = "https://lfcoqueiro.com/?id=405095043"
+LINK_754_WWW = "https://fly77777.com/?pid=92528175&channel=3&t=1795049170980"
 LINK_ID = "https://t.me/imperio777ofc"
 
 # OJWIN (mensagem 2)
@@ -23,8 +23,8 @@ LINK_POP = "https://www.popgld.com/?a=42cOsF&pkgCode=popgld-011&from=1001"
 LINK_POP_ALT = "https://33popgld.com/?a=42cOsF&pkgCode=popgld-011&from=1001"
 
 # 754WIN (mensagem 4)
-LINK_754 = "https://lfcoqueiro.com/?id=405095043"
-LINK_754_ALT = "https://www.lf-coqueiro.com/?id=405095043"
+LINK_754 = "https://fly77777.com/?pid=92528175&channel=3&t=1795049170980"
+LINK_754_ALT = "https://fly77777.com/?pid=92528175&channel=3&t=1795049170980"
 
 # 7JWIN (mensagem 5)
 LINK_7J = "https://7jwin.vip/?pid=3791782603&fromPage=AGENCY_CENTER"
@@ -58,19 +58,19 @@ MENSAGENS = [
             "2 PIX DE 200$ (2 GANHADORES)\n\n"
             "*QUALQUER VALOR DE DEPÓSITO É VÁLIDO PARA PARTICIPAR!* ✅\n"
             "PLATAFORMAS VÁLIDAS PARA O SORTEIO ⤵️\n\n"
+            "🎰 *FLYWINBRA:*\n"
+            f"{LINK_754_WWW}\n\n"
             "🎰 *OJWIN:*\n"
             f"{LINK_OJ_789}\n\n"
             "🎰 *POPGLD:*\n"
             f"{LINK_POPGLD_33}\n\n"
-            "🎰 *LF-COQUEIRO:*\n"
-            f"{LINK_754_WWW}\n\n"
             "❗ Obs. Fazendo conta nas 3 plataformas e depositando, pode escolher 3 números.\n\n"
             "📆 *Data do sorteio: (29/11)*"
         ),
         "botoes": [
+            [{"text": "🎰 JOGAR NA FLYWINBRA", "url": LINK_754_WWW}],
             [{"text": "🎰 JOGAR NA OJWIN", "url": LINK_OJ_789}],
             [{"text": "🎰 JOGAR NA POPGLD", "url": LINK_POPGLD_33}],
-            [{"text": "🎰 JOGAR NA LF-COQUEIRO", "url": LINK_754_WWW}],
             [{"text": "ENVIAR 🆔 PARA PARTICIPAR", "url": LINK_ID, "style": "primary"}],
         ],
     },
@@ -121,22 +121,22 @@ MENSAGENS = [
     # ---------------------------------------------------------------- 4 (nova)
     {
         "nome": "m4",
-        "imagem": "lfcoqueiro.jpg",
+        "imagem": "flywinbra.jpg",
         "texto": (
             "🇱 🇦 🇳 🇨 🇦 🇲 🇪 🇳 🇹 🇴\n"
-            "࿐ 🎰 GRUPO LF 🎰 ࿐\n\n"
+            "࿐ 🎰 GRUPO WIN 🎰 ࿐\n\n"
             "🎰 *LINK DA PLATAFORMA:*\n"
             f"{LINK_754}\n\n"
             "🔗 *LINK ALTERNATIVO:*\n"
             f"{LINK_754_ALT}\n\n"
-            "✅ *DEPÓSITO MIN - 10$*\n"
+            "✅ *DEPÓSITO MIN - 5$*\n"
             "✅ *SAQUE MIN - 10$*\n"
             "✅ *SEM TAXA DE SAQUE*\n"
             "✅ *SEM BARRINHA/ROLLOVER*\n"
             "🚨 *Não crie mais de uma conta na plataforma!*"
         ),
         "botoes": [
-            [{"text": "🎰 JOGAR NA LF-COQUEIRO", "url": LINK_754}],
+            [{"text": "🎰 JOGAR NA FLYWINBRA", "url": LINK_754}],
             [{"text": "🔗 LINK ALTERNATIVO", "url": LINK_754_ALT}],
         ],
     },
